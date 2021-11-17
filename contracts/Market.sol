@@ -52,7 +52,7 @@ contract NFTMarket is ReentrancyGuard {
     uint256 tokenId,
     uint256 price
   ) public payable nonReentrant {
-    require(price > 0, "Price must be at least 1 wei");
+    require(price >= 0, "Price must be at least 0 wei");
     require(msg.value == listingPrice, "Price must be equal to listing price");
     require(IERC721(nftContract).ownerOf(tokenId) == msg.sender, "Only owner can create sell order");
 
