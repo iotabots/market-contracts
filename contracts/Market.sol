@@ -52,8 +52,9 @@ contract NFTMarket is ReentrancyGuard {
     uint256 tokenId,
     uint256 price
   ) public payable nonReentrant {
-    require(price > 0, "Price must be at least 1 wei");
+    require(price >= 0, "Price must be at least 0 wei");
     require(msg.value == listingPrice, "Price must be equal to listing price");
+    require(IERC721(nftContract).ownerOf(tokenId) == msg.sender, "Only owner can create sell order");
 
     _itemIds.increment();
     uint256 itemId = _itemIds.current();
@@ -102,8 +103,15 @@ contract NFTMarket is ReentrancyGuard {
   /* Returns all unsold market items */
   function fetchMarketItems() public view returns (MarketItem[] memory) {
     uint itemCount = _itemIds.current();
-    uint unsoldItemCount = _itemIds.current() - _itemsSold.current();
+    uint unsoldItemCount = 0;
     uint currentIndex = 0;
+
+    for (uint i = 0; i < itemCount; i++) {
+      if (idToMarketItem[i + 1].sold == false) {
+        unsoldItemCount += 1;
+      }
+    }
+
 
     MarketItem[] memory items = new MarketItem[](unsoldItemCount);
     for (uint i = 0; i < itemCount; i++) {
